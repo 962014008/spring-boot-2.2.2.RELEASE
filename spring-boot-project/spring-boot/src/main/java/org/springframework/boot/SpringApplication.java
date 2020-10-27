@@ -303,8 +303,7 @@ public class SpringApplication {
         ConfigurableApplicationContext context = null;
         Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList<>();
         configureHeadlessProperty();
-        // 获取实现了SpringApplicationRunListener接口的实现类，通过SPI机制加载
-        // META-INF/spring.factories文件下的类
+        // 获取实现了SpringApplicationRunListener接口的实现类，通过SPI机制加载META-INF/spring.factories文件下的类（外部文件加载机制，加载文件里面的key-value内容）
         SpringApplicationRunListeners listeners = getRunListeners(args);
 
         // 首先调用SpringApplicationRunListener的starting方法
@@ -323,12 +322,11 @@ public class SpringApplication {
             context = createApplicationContext();
 
             // 获取SpringBootExceptionReporter接口的类，异常报告
-            exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,
-                    new Class[]{ConfigurableApplicationContext.class}, context);
+            exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class, new Class[]{ConfigurableApplicationContext.class}, context);
 
             prepareContext(context, environment, listeners, applicationArguments, printedBanner);
 
-            // 核心方法，启动spring容器
+            // 核心流程方法，启动spring容器
             refreshContext(context);
             afterRefresh(context, applicationArguments);
 
@@ -339,10 +337,8 @@ public class SpringApplication {
             }
             // 调用started
             listeners.started(context);
-
-            // ApplicationRunner
-            // CommandLineRunner
-            // 获取这两个接口的实现类，并调用其run方法
+            
+            // 获取ApplicationRunner、CommandLineRunner两个接口的实现类，并调用其run方法
             callRunners(context, applicationArguments);
         } catch (Throwable ex) {
             handleRunFailure(context, ex, exceptionReporters, listeners);
